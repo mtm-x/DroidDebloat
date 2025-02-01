@@ -90,7 +90,19 @@ Window {
         visible: false
         color: "#232323"
 
+        Label{
+            id : connnectDevice
+            font.family: productsans.name
+            font.pixelSize: 16
+            font.bold: true
+            color: "white"
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.topMargin:parent.height / 3.5
+        }
+
         Text {
+            id : checkinggg
             text: "Check for connected device"
             font.family: productsans.name
             font.pixelSize: 26
@@ -130,6 +142,7 @@ Window {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
+                    checkinggg.text = "Checking for connected device..."
                     busyIndicator.visible = true
                     checkDeviceTimer.start()
 
@@ -145,7 +158,7 @@ Window {
                 busyIndicator.visible = false
                 var device = debloater.check_device()
                 if (device === "No devices connected."){
-                    connectedDevice.text = device
+                    connnectDevice.text = "No devices connected."
                 }
                 else{
                     connectedDevice.text = "Connected device : " + device
@@ -185,12 +198,11 @@ Window {
             font.family: productsans.name
             font.pixelSize: 16
             font.bold: true
+            visible: true
             color: "white"
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.topMargin:parent.height / 4
-
-
         }
 
         TextField {
@@ -354,7 +366,6 @@ Window {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-
                         pkgName.text = debloater.uninstall(pkg_clicked)
 
                     }
@@ -381,6 +392,7 @@ Window {
                     onClicked: {
                         uninstallPage.visible = false
                         searchPage.visible = true
+                        appName.text = ""
                         packageModel.clear();
                         var packages = debloater.load_pkgs("");
                         for (var i = 0; i < packages.length; i++) {
