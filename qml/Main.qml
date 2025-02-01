@@ -6,12 +6,16 @@ import QtQuick.Effects
 import io.qt.textproperties 1.0
 
 Window {
-
     width: 640
     height: 580
     visible: true
     title: qsTr("Droid Debloat")
     color: "#232323"
+    
+    maximumWidth: 640
+    maximumHeight: 580
+    minimumWidth: 640
+    minimumHeight: 580
 
     Debloater{
         id: debloater

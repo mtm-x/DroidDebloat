@@ -3,3 +3,4 @@ Debloater.pyproject
 Debloater.pyproject.user
 test.py
 __pycache__/
+.idea/

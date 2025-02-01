@@ -1,6 +1,7 @@
-# This Python file uses the following encoding: utf-8
 import sys
 import subprocess
+import os
+import platform
 import res.rc_res as rc_res
 
 from pathlib import Path
@@ -13,9 +14,10 @@ QML_IMPORT_MAJOR_VERSION = 1
 @QmlElement
 class Debloater(QObject):
 
-
     @Slot(result=str)
     def check_device(self):
+        if platform.system() == "Windows":
+            os.chdir("adb")
         result = subprocess.run(["adb", "devices"], capture_output=True, text=True)
         lines = result.stdout.splitlines()
 
