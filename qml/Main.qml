@@ -10,7 +10,7 @@ Window {
     width: 640
     height: 580
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Droid Debloat")
     color: "#232323"
 
     Debloater{
@@ -22,6 +22,8 @@ Window {
         source: "qrc:/res/fonts/ProductSansRegular.ttf"
 
     }
+
+    property string pkg_clicked: ""
 
     Rectangle {
         id: mainPage
@@ -149,10 +151,14 @@ Window {
                     connectedDevice.text = "Connected device : " + device
                     deviceCheck.visible = false
                     searchPage.visible = true
+                    packageModel.clear();
+                    var packages = debloater.load_pkgs("");
+                    for (var i = 0; i < packages.length; i++) {
+                        packageModel.append({ "packageName": packages[i] });
                     }
+                }
             }
         }
-
     }
 
     Rectangle{
@@ -182,9 +188,11 @@ Window {
             color: "white"
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: parent.height / 3
+            anchors.topMargin:parent.height / 4
+
 
         }
+
         TextField {
             id: appName
             placeholderText : "Search"
@@ -226,10 +234,14 @@ Window {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-
                     debloater.app_name(appName.text)
-                    searchPage.visible = false
-                    packagePage.visible = true
+                    packageModel.clear();
+
+                           var packages = debloater.load_pkgs("Search");
+                           for (var i = 0; i < packages.length; i++) {
+                               packageModel.append({ "packageName": packages[i] });
+                           }
+
 
                 }
             }
@@ -239,52 +251,35 @@ Window {
             anchors.topMargin: parent.height / 6.8
         }
 
+        ScrollView{
 
+            id : scroll
+            width: 600
+            height: 400
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 210
+            anchors.bottom : parent.bottom
+            anchors.bottomMargin: 80
 
-
-
-    }
-
-    // Rectangle{
-    //     id : searching
-    //     width: parent.width
-    //     height: parent.height
-    //     visible: false
-    //     color: "#232323"
-    //     Text {
-    //         text: "Searching"
-    //         font.pixelSize: 16
-    //         font.bold: true
-    //         color: "white"
-    //         anchors.top: parent.top
-    //         anchors.horizontalCenter: parent.horizontalCenter
-    //         anchors.topMargin: 150
-    //     }
-
-
-    // }
-
-    Rectangle{
-        id: packagePage
-        width: parent.width
-        height: parent.height
-        visible: false
-        color: "#232323"
-
+            ScrollBar.vertical: ScrollBar {
+                    parent: scroll
+                    x: scroll.mirrored ? 0 : scroll.width - width
+                    y: scroll.topPadding
+                    height: scroll.availableHeight
+                    active: scroll.ScrollBar.horizontal.active
+                }
 
             ListView {
                 id: packageListView
-                anchors.fill: parent
-                anchors.top: parent.top
-                anchors.left : parent.left
-                anchors.leftMargin: 60
-                anchors.topMargin :100
+                anchors.fill: scroll
+
                 model: ListModel {
                     id: packageModel
                 }
 
                 delegate: Item {
-                    width: 400
+                    width: scroll.width
                     height: 40
 
                     Rectangle {
@@ -295,27 +290,106 @@ Window {
 
                         Text {
                             text: model.packageName
+                            font.family: productsans.name
                             color: "white"
                             anchors.centerIn: parent
                         }
+
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            pkg_clicked = model.packageName
+                            searchPage.visible = false
+                            uninstallPage.visible = true
+                            pkgName.text = "Selected Package: "+pkg_clicked
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    Rectangle{
+        id: uninstallPage
+        width: parent.width
+        height: parent.height
+        visible: false
+        color: "#232323"
+
+
+        Text {
+            id : pkgName
+            font.family: productsans.name
+            font.pixelSize: 16
+            font.bold: true
+            color: "white"
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.topMargin: parent.height / 4
+        }
+
+        Column{
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: parent.height / 3
+            spacing: 10
+            Button {
+                text: "Uninsttall"
+                font.family: productsans.name
+                width: 150
+                height: 60
+
+                background: Rectangle {
+                    radius: 6
+                    color: customButton.down ? "#1E88E5" : (customButton.hovered ? "#42A5F5" : "#2196F3")
+                    border.color: "#fff"
+                    border.width: 2
+                }
+                font.pixelSize: 16
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+
+                        pkgName.text = debloater.uninstall(pkg_clicked)
+
                     }
                 }
             }
 
             Button {
-                text: "Load Packages"
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: {
-                    packageModel.clear();
+                text: "Back"
+                font.family: productsans.name
+                width: 150
+                height: 60
 
-                           var packages = debloater.load_pkgs();
-                           for (var i = 0; i < packages.length; i++) {
-                               packageModel.append({ "packageName": packages[i] });
-                           }
+                background: Rectangle {
+                    radius: 6
+                    color: customButton.down ? "#1E88E5" : (customButton.hovered ? "#42A5F5" : "#2196F3")
+                    border.color: "#fff"
+                    border.width: 2
+                }
+                font.pixelSize: 16
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        uninstallPage.visible = false
+                        searchPage.visible = true
+                        packageModel.clear();
+                        var packages = debloater.load_pkgs("");
+                        for (var i = 0; i < packages.length; i++) {
+                            packageModel.append({ "packageName": packages[i] });
+                        }
+                    }
                 }
             }
-
+        }
 
     }
 }

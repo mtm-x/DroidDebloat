@@ -30,18 +30,18 @@ class Debloater(QObject):
     @Slot(str,result=str)
     def app_name(self,s):
         self.Application_name = s.strip().lower()
-        print(self.Application_name)
         
             
-    @Slot(result=list)
-    def load_pkgs(self):
-
+    @Slot(str,result=list)
+    def load_pkgs(self,s):
         package_list = subprocess.run(['adb', 'shell', 'pm', 'list', 'packages'], stdout=subprocess.PIPE, text=True).stdout.splitlines()
         cleaned_package_list = []
         for pkg in package_list:
             clean = pkg.replace("package:","")
             cleaned_package_list.append(clean)
-            # print(cleaned_package_list)
+        if cleaned_package_list:
+            if not s:
+                return cleaned_package_list
 
         self.filtered = []
         if cleaned_package_list :
@@ -52,7 +52,14 @@ class Debloater(QObject):
                         
         if self.filtered:
             return self.filtered
-        
+    
+    @Slot(str,result=str)
+    def uninstall(self,s):
+        process = subprocess.run(['adb', 'shell', 'pm', 'uninstall', '--user', '0', s],stdout=subprocess.PIPE, text=True).stdout.splitlines()
+        if "Success" in process:
+            return "Uninstalled Successfully"
+        else:
+            return "Failed"
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
