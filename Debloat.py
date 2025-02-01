@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import sys
 import subprocess
+import res.rc_res as rc_res
 
 from pathlib import Path
 from PySide6.QtCore import QObject, Slot
@@ -13,8 +14,18 @@ QML_IMPORT_MAJOR_VERSION = 1
 class Debloater(QObject):
 
     @Slot(result=str)
-    def debloat(self):
-        return "Fuck"
+    def check_device(self):
+        result = subprocess.run(["adb", "devices"], capture_output=True, text=True)
+        lines = result.stdout.splitlines()
+
+        for line in lines[1:]:
+            parts = line.split("device")[0]
+            if parts:
+                return parts
+            else:
+                return "No devices connected."
+            
+            
     
     @Slot(str,result=str)
     def app_name(self,s):
@@ -46,8 +57,8 @@ class Debloater(QObject):
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
-    qml_file = Path(__file__).resolve().parent / "Main.qml"
+    qml_file = Path(__file__).resolve().parent / "qml/Main.qml"
     engine.load(qml_file)
     if not engine.rootObjects():
         sys.exit(-1)
-    sys.exit(app.exec())
+    sys.exit(app.exec()) 
