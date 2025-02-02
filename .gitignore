@@ -4,3 +4,5 @@ Debloater.pyproject.user
 test.py
 __pycache__/
 .idea/
+res.qrc
+res/fonts/

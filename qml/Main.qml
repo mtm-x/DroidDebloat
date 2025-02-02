@@ -1,8 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
-import QtQuick.Controls.Material 2.1
-import QtQuick.Effects
+import QtQuick.Controls.Material
 import io.qt.textproperties 1.0
 
 Window {
